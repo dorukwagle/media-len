@@ -11,6 +11,10 @@ public class Main {
             //start processing the commands and display results
             mediaCalc.process();
         }catch (Exception e){
+            if(e.getMessage().equals("NoMediaException")){
+                System.out.println("No media files found in the given directory");
+                return;
+            }
             e.printStackTrace();
         }
     }

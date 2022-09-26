@@ -12,11 +12,12 @@ public class ParseArguments {
                 "media-len -a -d directory_path\n" +
                 "media-len --all -d directory_path\n";
         HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("ant", this.options);
+        formatter.printHelp(helpStr, this.options);
     }
 
     public ParseArguments(String[] args){
         this.options = new Options();
+        this.options.addOption("h", false, "displays this help menu");
         this.options.addOption("a", false, "only includes audio files in the  directory");
         this.options.addOption("v", false, "only includes video files in the directory");
         this.options.addOption("l", false, "list individual file with its length");

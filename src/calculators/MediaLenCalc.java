@@ -64,7 +64,7 @@ public class MediaLenCalc implements MediaLength {
         //video format lists
         String videoFormats = "mp4, mov, wmv, avi, avchd, flv, f4v, swf, mkv, webm, mpeg-2";
         //audio format lists
-        String audioFormats = "pcm, wav, aiff, ";
+        String audioFormats = "pcm, wav, aiff, mp3, aac, ogg, wma, flac, alac, m4a";
         //list all the files in the given directory
         File file = new File(directory);
         //apply filter and only list files, exclude folders and non video files
