@@ -97,7 +97,6 @@ public class MediaCalc {
         if(!this.validateOptions())
             return;
 
-        ;
     }
 
 }
