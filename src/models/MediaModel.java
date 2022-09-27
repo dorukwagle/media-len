@@ -3,12 +3,10 @@ package models;
 public class MediaModel {
     private String fileName;
     private double duration;
-    private String format;
 
-    public MediaModel(String fileName, double duration, String format) {
+    public MediaModel(String fileName, double duration) {
         this.fileName = fileName;
         this.duration = duration;
-        this.format = format;
     }
 
     public String getFileName() {
@@ -19,7 +17,4 @@ public class MediaModel {
         return duration;
     }
 
-    public String getFormat() {
-        return format;
-    }
 }

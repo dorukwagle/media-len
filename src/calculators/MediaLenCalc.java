@@ -1,30 +1,40 @@
 package calculators;
 import contracts.MediaLength;
 import models.MediaModel;
-import net.bramp.ffmpeg.FFprobe;
-import net.bramp.ffmpeg.probe.FFmpegFormat;
-import net.bramp.ffmpeg.probe.FFmpegProbeResult;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 
 public class MediaLenCalc implements MediaLength {
-    private FFprobe fprobe;
-
-    public MediaLenCalc() throws Exception{
-        this.fprobe = new FFprobe("/usr/bin/ffprobe");;
-    }
 
     private MediaModel getMediaLen(String filename) throws Exception{
-        FFmpegProbeResult result = fprobe.probe(filename);
-        FFmpegFormat format = result.getFormat();
-        return new MediaModel(
-                format.filename,
-                format.duration,
-                format.format_long_name
-                );
+        BufferedReader bufferedReader;
+        String error = "", e;
+        MediaModel model = null;
+        String[] cmd = {"ffprobe", "-v", "error",  "-show_entries", "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", filename};
+        Process process = Runtime.getRuntime().exec(cmd);
+
+        //first, check for error
+        bufferedReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+        if((e = bufferedReader.readLine()) != null){
+            error += e + "\n";
+            while ((e = bufferedReader.readLine()) != null){
+                error += e + "\n";
+            }
+            throw new Exception("CommandError:~ " + error);
+        }
+
+        //now read the output of the command
+        bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        String duration;
+        if((duration = bufferedReader.readLine()) != null){
+            model = new MediaModel(new File(filename).getName(), Double.parseDouble(duration));
+        }
+        return model;
     }
 
     @Override

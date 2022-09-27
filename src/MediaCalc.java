@@ -15,17 +15,19 @@ public class MediaCalc {
     private MediaLength mediaLength;
 
     private ParseArguments parser;
-    public MediaCalc(MediaLength mediaLength, ParseArguments parser){
+    public MediaCalc(MediaLength mediaLength, String[] args){
 //        "a", false, "only includes audio files in the  directory");
 //        "v", false, "only includes video files in the directory");
 //        "l", false, "list individual file with its length");
 //        "all", false, "includes both audio and video files in the directory");
 //        "f", true, "single filename or multiple filenames with absolute/relative path");
 //        "d",true, "directory path");
-
-        this.mediaLength = mediaLength;
-        this.parser = parser;
-
+        try {
+            this.mediaLength = mediaLength;
+            this.parser = new ParseArguments(args);
+        }catch (Exception e){
+            this.handleErrors(e);
+        }
         //check for all the supplied cli arguments and initialize rest of values;
         if(this.parser.hasOption("h")){
             parser.displayHelp();
@@ -47,12 +49,22 @@ public class MediaCalc {
 
     //validate all the options as well as values of the options
     private boolean validateOptions(){
+        //first check if none of the options are provided
+        if( !this.isListAll)
         //option 'a', 'v' and 'all' requires -d option
         if((this.isAudio || this.isVideo || isAudioVideo) && !this.isDirectory){
             System.out.println("Expected -d flag");
             System.out.println("Type: media-len -h for help");
             return false;
         }
+
+        //if contains -d flag without any other options like -a, -v or -all
+        if(this.isDirectory && (!this.isAudio && !this.isVideo && !this.isAudioVideo)){
+            System.out.println("Expected: -a, -v or -all flag");
+            System.out.println("Type: media-len -h for help");
+            return false;
+        }
+
         //there can't be -f and -d options at the same time
         if(this.isDirectory && this.isFile){
             System.out.println("Invalid Syntax");
@@ -129,7 +141,7 @@ public class MediaCalc {
     //convert ArrayList of models into displayable data
     private String createDisplayable(ArrayList<MediaModel> mediaInfos){
         try {
-            StringBuilder displayable = new StringBuilder((this.isListAll ? "\nDuration \t Format \t File" : ""));
+            StringBuilder displayable = new StringBuilder((this.isListAll ? "\nDuration \t File" : ""));
             int len = mediaInfos.size();
             //store total time if more than one file
             double total = 0;
@@ -137,7 +149,7 @@ public class MediaCalc {
 
             for( MediaModel model : mediaInfos){
                 displayable.append(this.isListAll ?
-                        (String.format("\n%s \t %s \t %s", this.toHumanReadable(model.getDuration()), model.getFormat(), model.getFileName())) :
+                        (String.format("\n%s \t %s", this.toHumanReadable(model.getDuration()), model.getFileName())) :
                         ("\n" + model.getDuration()));
                 if(len > 1)
                     total += model.getDuration();
@@ -159,7 +171,7 @@ public class MediaCalc {
             ArrayList<MediaModel> mediaInfos = this.mediaLength.getMediasLen(files);
             System.out.println(this.createDisplayable(mediaInfos));
         }catch (Exception e){
-            e.printStackTrace();
+            this.handleErrors(e);
         }
 
     }
@@ -171,7 +183,7 @@ public class MediaCalc {
             ArrayList<MediaModel> mediaInfos = this.mediaLength.getDirVideosLen(directory);
             System.out.println(this.createDisplayable(mediaInfos));
         }catch (Exception e){
-            e.printStackTrace();
+            this.handleErrors(e);
         }
     }
 
@@ -182,7 +194,7 @@ public class MediaCalc {
             ArrayList<MediaModel> mediaInfos = this.mediaLength.getDirAudiosLen(directory);
             System.out.println(this.createDisplayable(mediaInfos));
         }catch (Exception e){
-            e.printStackTrace();
+            this.handleErrors(e);
         }
     }
 
@@ -192,4 +204,21 @@ public class MediaCalc {
         this.displayAudiosLen();
     }
 
+    //display and handle the errors
+    private void handleErrors(Exception e){
+        if(e.getMessage().contains("CommandError")){
+            System.out.println(e.getMessage().split(":~ ")[1]);
+            return;
+        }
+        if(e.getMessage().equals("NoMediaException")){
+            System.out.println("No media files found in the given directory");
+            return;
+        }
+        if(e.toString().contains("MissingArgumentsException")){
+            System.out.println(e.getMessage());
+            System.out.println("Type: media-len -h for help");
+            return;
+        }
+        e.printStackTrace();
+    }
 }

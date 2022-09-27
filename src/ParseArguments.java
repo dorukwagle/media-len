@@ -15,7 +15,7 @@ public class ParseArguments {
         formatter.printHelp(helpStr, this.options);
     }
 
-    public ParseArguments(String[] args){
+    public ParseArguments(String[] args) throws Exception{
         this.options = new Options();
         this.options.addOption("h", false, "displays this help menu");
         this.options.addOption("a", false, "only includes audio files in the  directory");
@@ -26,11 +26,8 @@ public class ParseArguments {
         this.options.addOption("d",true, "directory path");
 
         CommandLineParser parser = new DefaultParser();
-        try {
-            this.cmd = parser.parse(options, args);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        this.cmd = parser.parse(options, args);
+
     }
 
     public boolean hasOption(String str){
