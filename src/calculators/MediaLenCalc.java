@@ -17,8 +17,7 @@ public class MediaLenCalc implements MediaLength {
         this.fprobe = new FFprobe("/usr/bin/ffprobe");;
     }
 
-    @Override
-    public MediaModel getMediaLen(String filename) throws Exception{
+    private MediaModel getMediaLen(String filename) throws Exception{
         FFmpegProbeResult result = fprobe.probe(filename);
         FFmpegFormat format = result.getFormat();
         return new MediaModel(
@@ -29,33 +28,22 @@ public class MediaLenCalc implements MediaLength {
     }
 
     @Override
-    public ArrayList<MediaModel> getDirAudioLen(String directory) throws Exception {
+    public ArrayList<MediaModel> getDirAudiosLen(String directory) throws Exception {
         String[] filenames = this.getMediaFiles(directory, "audio");
         return this.getMediasLen(filenames);
     }
 
     @Override
-    public ArrayList<MediaModel> getDirVidoeLen(String directory) throws Exception{
+    public ArrayList<MediaModel> getDirVideosLen(String directory) throws Exception{
         String[] filenames = this.getMediaFiles(directory, "video");
         return this.getMediasLen(filenames);
     }
 
     @Override
     public ArrayList<MediaModel> getMediasLen(String[] filenames) throws Exception{
-        FFmpegProbeResult result;
-        FFmpegFormat format;
         ArrayList<MediaModel> medias = new ArrayList<>();
         for(String filename : filenames){
-            result = fprobe.probe(filename);
-            format = result.getFormat();
-
-            medias.add(
-                    new MediaModel(
-                            format.filename,
-                            format.duration,
-                            format.format_long_name
-                    )
-            );
+            medias.add(this.getMediaLen(filename));
         }
         return medias;
     }

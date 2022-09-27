@@ -1,7 +1,8 @@
-import calculators.MediaLenCalc;
 import contracts.MediaLength;
+import models.MediaModel;
 
 import java.io.File;
+import java.util.ArrayList;
 
 public class MediaCalc {
     private boolean isFolderLen = false;
@@ -96,7 +97,99 @@ public class MediaCalc {
         //check if the options are valid
         if(!this.validateOptions())
             return;
+        //check if it is directory and audio video is selected
+        if(this.isDirectory){
+            if((this.isVideo && this.isAudio) || this.isAudioVideo)
+                this.displayAudioVideoLen();
+            else if(this.isAudio)
+                this.displayAudiosLen();
+            else if(this.isVideo)
+                this.displayVideosLen();
+        }
+        else if(this.isFile)
+            this.displayMediasLen();
+    }
 
+    //convert seconds to human-readable duration
+    private String toHumanReadable(double seconds){
+        double hours;
+        double minutes;
+        double sec;
+
+        //first convert total seconds to minutes
+        minutes = (int) (seconds / 60);
+        sec = seconds % 60;
+        //convert minutes to hours
+        hours = (int) (minutes / 60);
+        minutes = minutes % 60;
+
+        return String.format("%f:%f:%f", hours, minutes, sec);
+    }
+
+    //convert ArrayList of models into displayable data
+    private String createDisplayable(ArrayList<MediaModel> mediaInfos){
+        try {
+            StringBuilder displayable = new StringBuilder((this.isListAll ? "\nDuration \t Format \t File" : ""));
+            int len = mediaInfos.size();
+            //store total time if more than one file
+            double total = 0;
+            //now send the files to the MediaLength to calculate
+
+            for( MediaModel model : mediaInfos){
+                displayable.append(this.isListAll ?
+                        (String.format("\n%s \t %s \t %s", this.toHumanReadable(model.getDuration()), model.getFormat(), model.getFileName())) :
+                        ("\n" + model.getDuration()));
+                if(len > 1)
+                    total += model.getDuration();
+            }
+            if(len > 1){
+                displayable.append(String.format("\nTotal : %s", this.toHumanReadable(total)));
+            }
+            return displayable.toString();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    //calculate and display media length
+    private void displayMediasLen(){
+        try {
+            String[] files = this.parser.getFiles();
+            ArrayList<MediaModel> mediaInfos = this.mediaLength.getMediasLen(files);
+            System.out.println(this.createDisplayable(mediaInfos));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
+
+    //calculate and display video length :directory
+    private void displayVideosLen(){
+        try {
+            String directory = this.parser.getDirectory();
+            ArrayList<MediaModel> mediaInfos = this.mediaLength.getDirVideosLen(directory);
+            System.out.println(this.createDisplayable(mediaInfos));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    //calculate and display audio length :directory
+    private void displayAudiosLen(){
+        try {
+            String directory = this.parser.getDirectory();
+            ArrayList<MediaModel> mediaInfos = this.mediaLength.getDirAudiosLen(directory);
+            System.out.println(this.createDisplayable(mediaInfos));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    //calculate and display audio and video length :directory
+    private void displayAudioVideoLen(){
+        this.displayVideosLen();
+        this.displayAudiosLen();
     }
 
 }
