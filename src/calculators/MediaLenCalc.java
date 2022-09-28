@@ -73,13 +73,10 @@ public class MediaLenCalc implements MediaLength {
                     return false;
                 String name = file.getName();
                 name = name.toLowerCase();
-                String[] part = name.split(".");
+                String[] part = name.split("\\.");
                 String format = part[part.length - 1];
                 String formatList = (mediaType.equals("video")? videoFormats : audioFormats);
-                if(formatList.contains(format))
-                    return true;
-                else
-                    return false;
+                return formatList.contains(format);
             }
         });
 

@@ -22,8 +22,9 @@ public class ParseArguments {
         this.options.addOption("v", false, "only includes video files in the directory");
         this.options.addOption("l", false, "list individual file with its length");
         this.options.addOption("all", false, "includes both audio and video files in the directory");
-        this.options.addOption("f", true, "single filename or multiple filenames with absolute/relative path");
         this.options.addOption("d",true, "directory path");
+        this.options.addOption(Option.builder("f").desc("single filename or multiple filenames with absolute/relative path")
+                .hasArgs().build());
 
         CommandLineParser parser = new DefaultParser();
         this.cmd = parser.parse(options, args);

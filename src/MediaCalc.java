@@ -22,6 +22,8 @@ public class MediaCalc {
 //        "all", false, "includes both audio and video files in the directory");
 //        "f", true, "single filename or multiple filenames with absolute/relative path");
 //        "d",true, "directory path");
+        //check if there are args
+
         try {
             this.mediaLength = mediaLength;
             this.parser = new ParseArguments(args);
@@ -135,7 +137,7 @@ public class MediaCalc {
         hours = (int) (minutes / 60);
         minutes = minutes % 60;
 
-        return String.format("%f:%f:%f", hours, minutes, sec);
+        return String.format("%.0f:%.0f:%.2f", hours, minutes, sec);
     }
 
     //convert ArrayList of models into displayable data
@@ -208,16 +210,21 @@ public class MediaCalc {
     private void handleErrors(Exception e){
         if(e.getMessage().contains("CommandError")){
             System.out.println(e.getMessage().split(":~ ")[1]);
-            return;
+            System.exit(1);
         }
         if(e.getMessage().equals("NoMediaException")){
             System.out.println("No media files found in the given directory");
-            return;
+            System.exit(1);
         }
-        if(e.toString().contains("MissingArgumentsException")){
+        if(e.toString().contains("MissingArgumentException")){
             System.out.println(e.getMessage());
             System.out.println("Type: media-len -h for help");
-            return;
+            System.exit(1);
+        }
+        if(e.toString().contains("UnrecognizedOptionException")){
+            System.out.println(e.getMessage());
+            System.out.println("Type: media-len -h for help");
+            System.exit(1);
         }
         e.printStackTrace();
     }
